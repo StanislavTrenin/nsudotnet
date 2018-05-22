@@ -1,7 +1,7 @@
-﻿using System.Threading;
+﻿using System;
+using System.Threading;
 using System.Drawing;
-using AForge.Video;
-using AForge.Video.DirectShow;
+using System.Drawing.Imaging;
 
 namespace Watchdog
 {
@@ -11,7 +11,6 @@ namespace Watchdog
         private readonly object _objectLock = new object();
         private Bitmap _photo;
         private volatile int _clients;
-        private VideoCaptureDevice _device;
 
         public static PhotoCatcher GetPhotoCatcher()
         {
@@ -25,7 +24,7 @@ namespace Watchdog
             {
                 lock (_objectLock)
                 {
-                    TakePhotoFromCam();
+                    _photo = TakePhotoFromCam();
                 }
             }
             while (_photo == null)
@@ -49,22 +48,11 @@ namespace Watchdog
             return resultPhoto;
         }
 
-        private void TakePhotoFromCam()
+        private Bitmap TakePhotoFromCam()
         {
-            var filter = new FilterInfoCollection(FilterCategory.VideoInputDevice)[0];
-            _device = new VideoCaptureDevice(filter.MonikerString);
-            _device.NewFrame += DeviceNewFrame;
-            _device.Start();
-        }
-
-        private void DeviceNewFrame(object sender, NewFrameEventArgs e)
-        {
-            _photo?.Dispose();
-            _photo = (Bitmap)e.Frame.Clone();
-            if (_device == null) return;
-            _device.NewFrame -= DeviceNewFrame;
-            _device.SignalToStop();
-            _device = null;
+            Capture capture = new Capture();
+            IntPtr image = capture.GetImage();
+            return new Bitmap(capture.Width, capture.Height, capture.Stride, PixelFormat.Format24bppRgb, image);
         }
 
     }
