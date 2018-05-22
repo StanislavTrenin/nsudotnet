@@ -1,5 +1,4 @@
-﻿using System;
-using System.Threading;
+﻿using System.Threading;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -48,11 +47,16 @@ namespace Watchdog
             return resultPhoto;
         }
 
-        private Bitmap TakePhotoFromCam()
+        private static Bitmap TakePhotoFromCam()
         {
-            Capture capture = new Capture();
-            IntPtr image = capture.GetImage();
-            return new Bitmap(capture.Width, capture.Height, capture.Stride, PixelFormat.Format24bppRgb, image);
+            Bitmap bitmap;
+            using (var capture = new Capture())
+            {
+                var image = capture.GetImage();
+                bitmap = new Bitmap(capture.Width, capture.Height, capture.Stride, PixelFormat.Format24bppRgb, image);
+                bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            }
+            return bitmap;
         }
 
     }

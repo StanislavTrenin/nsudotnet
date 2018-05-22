@@ -27,7 +27,7 @@ namespace Watchdog
             _server.Dispose();
         }
 
-        private static void Main(string[] args)
+        private static void Main()
         {
             HostFactory.Run(x =>
             {
