@@ -4,16 +4,33 @@ using System.Drawing.Imaging;
 
 namespace Watchdog
 {
-    internal class PhotoCatcher
+    internal sealed class PhotoCatcher
     {
-        private static PhotoCatcher _photoCatcher;
-        private readonly object _objectLock = new object();
+        private static volatile PhotoCatcher _photoCatcher;
+        private static readonly object SyncRoot = new object();
+        private static readonly object ObjectLock = new object();
         private Bitmap _photo;
         private volatile int _clients;
 
-        public static PhotoCatcher GetPhotoCatcher()
+        private PhotoCatcher()
         {
-            return _photoCatcher ?? (_photoCatcher = new PhotoCatcher());
+        }
+
+        public static PhotoCatcher Instance
+        {
+            get
+            {
+                if (_photoCatcher != null) return _photoCatcher;
+                lock (SyncRoot)
+                {
+                    if (_photoCatcher == null)
+                    {
+                        _photoCatcher = new PhotoCatcher();
+                    }
+                }
+
+                return _photoCatcher;
+            }
         }
 
         public Bitmap GetPhoto()
@@ -21,7 +38,7 @@ namespace Watchdog
             _clients++;
             if (_clients == 1)
             {
-                lock (_objectLock)
+                lock (ObjectLock)
                 {
                     _photo = TakePhotoFromCam();
                 }
@@ -33,13 +50,13 @@ namespace Watchdog
             _clients--;
             if (_clients != 0)
             {
-                lock (_objectLock)
+                lock (ObjectLock)
                 {
                     return _photo;
                 }
             }
             Bitmap resultPhoto;
-            lock (_objectLock)
+            lock (ObjectLock)
             {
                 resultPhoto = _photo;
                 _photo = null;
