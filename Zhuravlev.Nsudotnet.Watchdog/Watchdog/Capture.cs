@@ -30,9 +30,6 @@ namespace Watchdog
 
         private IntPtr m_ipBuffer = IntPtr.Zero;
 
-#if DEBUG
-        DsROTEntry m_rot = null;
-#endif
         #endregion
 
         #region APIs
@@ -84,12 +81,6 @@ namespace Watchdog
 
         public void Dispose()
         {
-#if DEBUG
-            if (m_rot != null)
-            {
-                m_rot.Dispose();
-            }
-#endif
             CloseInterfaces();
             if (m_PictureReady != null)
             {
@@ -169,9 +160,6 @@ namespace Watchdog
 
             try
             {
-#if DEBUG
-                m_rot = new DsROTEntry(m_FilterGraph);
-#endif
                 hr = m_FilterGraph.AddSourceFilterForMoniker(dev.Mon, null, dev.Name, out capFilter);
                 DsError.ThrowExceptionForHR(hr);
 
