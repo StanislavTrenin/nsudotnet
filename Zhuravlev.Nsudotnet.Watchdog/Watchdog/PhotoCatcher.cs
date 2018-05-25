@@ -1,5 +1,4 @@
-﻿using System.Threading;
-using System.Drawing;
+﻿using System.Drawing;
 using System.Drawing.Imaging;
 
 namespace Watchdog
@@ -9,7 +8,7 @@ namespace Watchdog
         private static volatile PhotoCatcher _photoCatcher;
         private static readonly object SyncRoot = new object();
         private static readonly object ObjectLock = new object();
-        private Bitmap _photo;
+        private static volatile Bitmap _photo;
         private volatile int _clients;
 
         private PhotoCatcher()
@@ -35,33 +34,29 @@ namespace Watchdog
 
         public Bitmap GetPhoto()
         {
-            _clients++;
-            if (_clients == 1)
+            lock (ObjectLock)
             {
-                lock (ObjectLock)
+                _clients++;
+                if (_photo == null)
                 {
                     _photo = TakePhotoFromCam();
                 }
             }
-            while (_photo == null)
-            {
-                Thread.Sleep(500);
-            }
-            _clients--;
-            if (_clients != 0)
-            {
-                lock (ObjectLock)
-                {
-                    return _photo;
-                }
-            }
-            Bitmap resultPhoto;
             lock (ObjectLock)
             {
-                resultPhoto = _photo;
-                _photo = null;
+                if (_clients != 1)
+                {
+                    _clients--;
+                    return _photo;
+                }
+                else
+                {
+                    var resultPhoto = _photo;
+                    _photo = null;
+                    _clients--;
+                    return resultPhoto;
+                }
             }
-            return resultPhoto;
         }
 
         private static Bitmap TakePhotoFromCam()

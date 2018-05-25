@@ -12,7 +12,7 @@ namespace Watchdog.Controllers
         {
             var memoryStream = new MemoryStream();
             var response = new HttpResponseMessage();
-            var photo = PhotoCatcher.GetPhotoCatcher().GetPhoto();
+            var photo = PhotoCatcher.Instance.GetPhoto();
             photo.Save(memoryStream, System.Drawing.Imaging.ImageFormat.Jpeg);
             memoryStream.Seek(0, SeekOrigin.Begin);
             response.Content = new StreamContent(memoryStream);
