@@ -31,6 +31,7 @@ namespace Watchdog
         private IntPtr m_ipBuffer = IntPtr.Zero;
 
         #endregion
+        static bool hasRun = false;
 
         #region APIs
         [DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory")]
@@ -68,6 +69,7 @@ namespace Watchdog
 
             try
             {
+          
                 SetupGraph(capDevices[iDeviceNum], iWidth, iHeight, iBPP);
 
                 m_PictureReady = new ManualResetEvent(false);
@@ -156,7 +158,10 @@ namespace Watchdog
             IPin pSampleIn = null;
             IPin pRenderIn = null;
 
-            m_FilterGraph = new FilterGraph() as IFilterGraph2;
+            if (!hasRun)
+            {
+                m_FilterGraph = new FilterGraph() as IFilterGraph2;
+            }
 
             try
             {
