@@ -31,7 +31,7 @@ namespace Watchdog
         private IntPtr m_ipBuffer = IntPtr.Zero;
 
         #endregion
-        static bool hasRun = false;
+        
 
         #region APIs
         [DllImport("Kernel32.dll", EntryPoint = "RtlMoveMemory")]
@@ -158,11 +158,9 @@ namespace Watchdog
             IPin pSampleIn = null;
             IPin pRenderIn = null;
 
-            if (!hasRun)
-            {
-                m_FilterGraph = new FilterGraph() as IFilterGraph2;
-            }
-
+         
+            m_FilterGraph = new FilterGraph() as IFilterGraph2;
+         
             try
             {
                 hr = m_FilterGraph.AddSourceFilterForMoniker(dev.Mon, null, dev.Name, out capFilter);

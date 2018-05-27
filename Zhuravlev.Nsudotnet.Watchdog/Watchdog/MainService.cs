@@ -18,13 +18,14 @@ namespace Watchdog
 
         public void Start()
         {
-            _server.OpenAsync();
+            _server.OpenAsync().Wait();
         }
 
         public void Stop()
         {
-            _server.CloseAsync();
+            _server.CloseAsync().Wait();
             _server.Dispose();
+            PhotoCatcher.Instance.Dispose();
         }
 
         private static void Main()
