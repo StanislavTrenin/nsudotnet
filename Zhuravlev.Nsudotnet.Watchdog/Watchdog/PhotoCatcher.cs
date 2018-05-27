@@ -1,15 +1,16 @@
-﻿using System.Threading;
+﻿using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
 namespace Watchdog
 {
-    internal sealed class PhotoCatcher
+    internal sealed class PhotoCatcher : IDisposable
     {
         private static volatile PhotoCatcher _photoCatcher;
+        private static readonly Capture Capture = new Capture(); 
         private static readonly object SyncRoot = new object();
         private static readonly object ObjectLock = new object();
-        private Bitmap _photo;
+        private static volatile Bitmap _photo;
         private volatile int _clients;
 
         private PhotoCatcher()
@@ -35,45 +36,43 @@ namespace Watchdog
 
         public Bitmap GetPhoto()
         {
-            _clients++;
-            if (_clients == 1)
+            lock (ObjectLock)
             {
-                lock (ObjectLock)
+                _clients++;
+                if (_photo == null)
                 {
                     _photo = TakePhotoFromCam();
                 }
             }
-            while (_photo == null)
-            {
-                Thread.Sleep(500);
-            }
-            _clients--;
-            if (_clients != 0)
-            {
-                lock (ObjectLock)
-                {
-                    return _photo;
-                }
-            }
-            Bitmap resultPhoto;
             lock (ObjectLock)
             {
-                resultPhoto = _photo;
-                _photo = null;
+                if (_clients != 1)
+                {
+                    _clients--;
+                    return _photo;
+                }
+                else
+                {
+                    var resultPhoto = _photo;
+                    _photo = null;
+                    _clients--;
+                    return resultPhoto;
+                }
             }
-            return resultPhoto;
         }
 
         private static Bitmap TakePhotoFromCam()
         {
-            Bitmap bitmap;
-            using (var capture = new Capture())
-            {
-                var image = capture.GetImage();
-                bitmap = new Bitmap(capture.Width, capture.Height, capture.Stride, PixelFormat.Format24bppRgb, image);
-                bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
-            }
+            var image = Capture.GetImage();
+            var bitmap = new Bitmap(Capture.Width, Capture.Height, Capture.Stride, PixelFormat.Format24bppRgb, image);
+            bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
             return bitmap;
+        }
+
+        public void Dispose()
+        {
+            Capture.Dispose();
+            _photo?.Dispose();
         }
 
     }
