@@ -25,6 +25,7 @@ namespace Watchdog
         {
             _server.CloseAsync().Wait();
             _server.Dispose();
+            PhotoCatcher.Instance.Dispose();
         }
 
         private static void Main()
