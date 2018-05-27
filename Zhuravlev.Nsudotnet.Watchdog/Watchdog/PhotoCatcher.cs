@@ -64,7 +64,7 @@ namespace Watchdog
         private static Bitmap TakePhotoFromCam()
         {
             var image = Capture.GetImage();
-            Bitmap bitmap = new Bitmap(Capture.Width, Capture.Height, Capture.Stride, PixelFormat.Format24bppRgb, image);
+            var bitmap = new Bitmap(Capture.Width, Capture.Height, Capture.Stride, PixelFormat.Format24bppRgb, image);
             bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
             return bitmap;
         }
