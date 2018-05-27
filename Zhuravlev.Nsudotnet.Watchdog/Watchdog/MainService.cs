@@ -16,14 +16,14 @@ namespace Watchdog
             _server = new HttpSelfHostServer(config);
         }
 
-        public void Start()
+        public async void Start()
         {
-            _server.OpenAsync();
+            await _server.OpenAsync();
         }
 
-        public void Stop()
+        public async void Stop()
         {
-            _server.CloseAsync();
+            await _server.CloseAsync();
             _server.Dispose();
         }
 
