@@ -152,14 +152,19 @@ namespace Watchdog
         {
             int hr;
 
+            
+            //IGraphBuilder pBuilder = null;
+            //IBaseFilter pNullF = null;
             ISampleGrabber sampGrabber = null;
             IBaseFilter capFilter = null;
             IPin pCaptureOut = null;
             IPin pSampleIn = null;
             IPin pRenderIn = null;
+            
 
          
             m_FilterGraph = new FilterGraph() as IFilterGraph2;
+
          
             try
             {
@@ -237,6 +242,7 @@ namespace Watchdog
 
                 IBaseFilter pRenderer = new VideoRendererDefault() as IBaseFilter;
                 hr = m_FilterGraph.AddFilter(pRenderer, "Renderer");
+                //hr = m_FilterGraph.AddFilter(null, "Null render");
                 DsError.ThrowExceptionForHR(hr);
 
                 pRenderIn = DsFindPin.ByDirection(pRenderer, PinDirection.Input, 0);
@@ -260,6 +266,8 @@ namespace Watchdog
                     hr = m_FilterGraph.Connect(m_pinStill, pSampleIn);
                     DsError.ThrowExceptionForHR(hr);
                 }
+
+                
 
                 SaveSizeInfo(sampGrabber);
 
