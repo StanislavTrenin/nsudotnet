@@ -7,7 +7,7 @@ namespace Watchdog
     internal sealed class PhotoCatcher : IDisposable
     {
         private static volatile PhotoCatcher _photoCatcher;
-        private static readonly Capture _capture = new Capture(); 
+        private static readonly Capture Capture = new Capture(); 
         private static readonly object SyncRoot = new object();
         private static readonly object ObjectLock = new object();
         private static volatile Bitmap _photo;
@@ -63,18 +63,16 @@ namespace Watchdog
 
         private static Bitmap TakePhotoFromCam()
         {
-            var image = _capture.GetImage();
-            Bitmap bitmap = new Bitmap(_capture.Width, _capture.Height, _capture.Stride, PixelFormat.Format24bppRgb, image);
+            var image = Capture.GetImage();
+            var bitmap = new Bitmap(Capture.Width, Capture.Height, Capture.Stride, PixelFormat.Format24bppRgb, image);
             bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
             return bitmap;
         }
 
         public void Dispose()
         {
-            _capture.Dispose();
-            if (_photo != null) {
-                _photo.Dispose();
-            }
+            Capture.Dispose();
+            _photo?.Dispose();
         }
 
     }

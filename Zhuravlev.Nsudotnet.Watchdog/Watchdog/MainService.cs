@@ -1,4 +1,5 @@
-﻿using System.Web.Http;
+﻿using System.Threading.Tasks;
+using System.Web.Http;
 using System.Web.Http.SelfHost;
 using Topshelf;
 
@@ -16,14 +17,14 @@ namespace Watchdog
             _server = new HttpSelfHostServer(config);
         }
 
-        public void Start()
+        public async Task Start()
         {
-            _server.OpenAsync().Wait();
+            await _server.OpenAsync();
         }
 
-        public void Stop()
+        public async Task Stop()
         {
-            _server.CloseAsync().Wait();
+            await _server.CloseAsync();
             _server.Dispose();
             PhotoCatcher.Instance.Dispose();
         }
@@ -35,8 +36,8 @@ namespace Watchdog
                 x.Service<MainService>(s =>
                 {
                     s.ConstructUsing(name => new MainService());
-                    s.WhenStarted(svc => svc.Start());
-                    s.WhenStopped(svc => svc.Stop());
+                    s.WhenStarted(svc => svc.Start().Wait());
+                    s.WhenStopped(svc => svc.Stop().Wait());
                 });
 
                 x.RunAsLocalSystem();

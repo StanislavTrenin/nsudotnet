@@ -17,6 +17,7 @@ namespace Watchdog.Controllers
             memoryStream.Seek(0, SeekOrigin.Begin);
             response.Content = new StreamContent(memoryStream);
             response.Content.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+            photo.Dispose();
             return response;
         }
     }
